@@ -14,5 +14,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  admission-api:
+    build: .
+    container_name: admission-api
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://admin:admin123@postgres:5432/admissiondb?sslmode=disable
+      - JWT_SECRET=S1@Anupam
+    ports:
+      - "8080:8080"
+
 volumes:
   pgdata:
