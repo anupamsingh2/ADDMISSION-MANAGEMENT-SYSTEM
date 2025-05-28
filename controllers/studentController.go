@@ -3,6 +3,7 @@ package controllers
 import (
 	"ADMISSION-MANAGEMENT-SYSTEM/config"
 	"ADMISSION-MANAGEMENT-SYSTEM/models"
+	"ADMISSION-MANAGEMENT-SYSTEM/utils"
 
 	"net/http"
 
@@ -65,6 +66,49 @@ func LoginStudent(c *gin.Context) {
 		return
 	}
 
-	// Authentication successful
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+	// Generate JWT token
+	token, err := utils.GenerateJWT(student.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	// Return token and student info (without password)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"token":   token,
+		"student": gin.H{
+			"id":    student.ID,
+			"name":  student.Name,
+			"email": student.Email,
+			"phone": student.Phone,
+		},
+	})
+}
+func StudentProfile(c *gin.Context) {
+	// Get userID from context and ensure it's the correct type
+	userIDValue, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found in context"})
+		return
+	}
+
+	userID, ok := userIDValue.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type"})
+		return
+	}
+
+	var student models.Student
+	if err := config.DB.First(&student, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Student not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":    student.ID,
+		"name":  student.Name,
+		"email": student.Email,
+		"phone": student.Phone,
+	})
 }
