@@ -11,6 +11,7 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		student.POST("/", controllers.CreateStudent)
 		student.GET("/", controllers.GetStudents)
+		student.POST("/login", controllers.LoginStudent)
 	}
 
 	course := r.Group("/courses")
