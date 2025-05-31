@@ -17,7 +17,7 @@ func SetupRoutes(r *gin.Engine) {
 		// Protected routes under /students that require JWT auth
 		protected := student.Group("/")
 		protected.Use(middlewares.AuthMiddleware())
-		protected.GET("/profile", controllers.StudentProfile) // example protected route
+		protected.GET("/profile", controllers.StudentProfile)
 	}
 
 	course := r.Group("/courses")
